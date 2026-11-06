@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Txinparta: neuroevolution of motif-based spiking neural networks"
+type: software
+authors:
+  - family-names: Irazusta
+    given-names: Andoni
+repository-code: "https://github.com/TheLeprechaun25/txinparta"
+version: 0.1.0

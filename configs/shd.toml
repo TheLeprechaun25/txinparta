@@ -1,0 +1,41 @@
+# Spiking Heidelberg Digits (Cramer et al. 2020): 20 spoken digits, 700 input channels.
+# Download shd_train.h5 / shd_test.h5 from https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/
+# into data/shd, then pip install -e .[shd,gpu]
+#
+# Check what the readout achieves on the raw input first:  darwinsnn baseline configs/shd.toml
+# A network has to beat that to be adding anything.
+
+[data]
+name = "shd"
+path = "data/shd"
+dt_ms = 10.0               # 1 step = 10 ms
+time_steps = 100           # first 1 s: covers essentially all spikes (max duration 1.37 s, p95 0.96 s)
+
+[genome]
+n_motifs = [100, 400]
+fan_out = [2, 6]
+input_fan_out = [1, 2]
+n_clusters = [4, 8]        # modular genomes: dense clusters, sparse links between them
+p_inter_cluster = 0.1
+delay = [1, 10]
+weight = [1.0, 3.0]        # sparse activity; much stronger weights saturate the network
+                           # (check with experiments/calibrate.py)
+
+[simulator]
+backend = "torch"          # whole population on one GPU; "numpy" / "pultsito" for CPU
+time_steps = 120
+batch_size = 256
+
+[fitness]
+objectives = ["accuracy", "synops"]   # on SHD, separation rises as networks saturate while
+                                      # accuracy falls, so separation is the wrong objective here
+features = "binned"
+bin_size = 10
+n_reference = 16           # samples/class for prototypes (see experiments/noise.py)
+n_query = 32
+n_repetitions = 4
+
+[evolution]
+pop_size = 32
+generations = 50
+out_dir = "results/shd"

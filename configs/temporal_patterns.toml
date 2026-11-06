@@ -1,0 +1,38 @@
+# Quick temporal task: synthetic patterns where only spike timing carries the class.
+# Runs in minutes on a laptop with the NumPy backend, faster with "torch" on a GPU.
+
+[data]
+name = "temporal_patterns"
+time_steps = 100
+n_classes = 5
+n_channels = 40
+n_samples_per_class = 60
+jitter = 2.0
+noise_rate = 0.002
+
+[genome]
+n_motifs = [30, 100]
+fan_out = [2, 5]
+input_fan_out = [1, 2]
+weight = [4.0, 12.0]
+evolve_weights = false
+
+[simulator]
+backend = "numpy"          # or "pultsito" after native/build_pultsito.sh
+time_steps = 130
+batch_size = 50
+
+[fitness]
+objectives = ["separation", "synops"]
+# Counts readout: the raw input is at chance level (every channel fires once in
+# every class), so any accuracy above 1/n_classes is computed by the network.
+features = "counts"
+n_reference = 16          # samples/class for prototypes; smaller plans rank good networks poorly
+n_query = 32
+n_repetitions = 4
+
+[evolution]
+pop_size = 16
+generations = 20
+seed = 0
+out_dir = "results/temporal_patterns"

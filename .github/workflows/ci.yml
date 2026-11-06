@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true          # Pultsito, pinned to the recorded commit
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: |
+          pip install -e ".[dev]"
+          # CPU-only PyTorch: enough to check the GPU backend against the NumPy reference
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Build the Pultsito backend
+        # GitHub runners may lack AVX-512, so build for the generic x86-64 baseline
+        run: CFLAGS_ARCH=-march=x86-64-v2 native/build_pultsito.sh
+
+      - name: Test (includes NumPy <-> Pultsito and NumPy <-> torch equivalence)
+        env:
+          DARWINSNN_REQUIRE_PULTSITO: "1"
+        run: pytest -v
+
+      - name: Quickstart example
+        run: python examples/quickstart.py

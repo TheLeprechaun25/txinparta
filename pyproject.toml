@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "darwinsnn"
+version = "0.1.0"
+description = "Txinparta: neuroevolution of motif-based, non-layered spiking neural networks"
+readme = "README.md"
+authors = [{ name = "Andoni Irazusta" }]
+requires-python = ">=3.11"
+keywords = ["spiking neural networks", "neuroevolution", "neural architecture search", "NSGA-II"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["numpy>=1.26", "scipy>=1.11"]
+
+[project.optional-dependencies]
+shd = ["h5py>=3.9"]
+gpu = ["torch>=2.2"]
+dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3"]
+
+[project.urls]
+Repository = "https://github.com/TheLeprechaun25/txinparta"
+
+[project.scripts]
+darwinsnn = "darwinsnn.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E702", "E741", "B905"]   # `a; b` lines in nsga2.py, `l` for links, zip(strict=)
